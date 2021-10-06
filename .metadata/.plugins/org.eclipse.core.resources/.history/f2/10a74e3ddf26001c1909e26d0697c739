@@ -1,0 +1,182 @@
+package view;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import control.PersonaListener;
+import model.Persona;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import java.awt.Font;
+
+public class VPersona extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	static final int ANCHO = 800;
+	static final int ALTO = 600;
+	private JTable tblPersonas;
+	private JButton btnConsulta;
+	private JButton btnAniadir;
+	private JButton btnEliminar;
+	private JButton btnModificar;
+	private DefaultTableModel tblModel;
+	
+	private static final String CLM_NOMBRE = "NOMBRE";
+	private static final String CLM_APELLIDOS = "APELLIDOS";
+	private static final String CLM_DNI = "DNI";
+	
+	public static String BTN_CONSULTAR = "CONSULTAR";
+	public static final String BTN_ELIMINAR = "ELIMINAR";
+	public static final String BTN_ANIADIR = "AÑADIR";
+	public static final String BTN_MODIFICAR = "MODIFICAR";
+	
+	private JScrollPane scrpContenedor;
+	
+	public VPersona() {
+		init();
+	}
+
+	private void init() {
+		getContentPane().setLayout(null);
+		
+		scrpContenedor = new JScrollPane();
+		scrpContenedor.setBounds(0, 0, 0, 0);
+		getContentPane().add(scrpContenedor);
+
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+		setSize(ANCHO, ALTO);
+
+		Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension ventana = new Dimension(ANCHO, ALTO);
+		setLocation((pantalla.width - ventana.width) / 2, (pantalla.height - ventana.height) / 2);
+		getContentPane().setLayout(null);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(31, 167, 724, 282);
+		getContentPane().add(scrollPane);
+		
+		tblPersonas = new JTable();
+		scrollPane.setViewportView(tblPersonas);
+		
+		configurarTabla();
+		
+		btnConsulta = new JButton(BTN_CONSULTAR);
+		btnConsulta.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnConsulta.setBounds(31, 112, 156, 37);
+		getContentPane().add(btnConsulta);
+		
+		btnAniadir = new JButton(BTN_ANIADIR);
+		btnAniadir.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnAniadir.setBounds(31, 486, 156, 37);
+		getContentPane().add(btnAniadir);
+		
+		btnEliminar = new JButton(BTN_ELIMINAR);
+		btnEliminar.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnEliminar.setBounds(316, 486, 156, 37);
+		getContentPane().add(btnEliminar);
+		
+		btnModificar = new JButton(BTN_MODIFICAR);
+		btnModificar.setFont(new Font("Tahoma", Font.BOLD, 14));
+		btnModificar.setBounds(602, 486, 156, 37);
+		getContentPane().add(btnModificar);
+		
+		JLabel lblConsultar = new JLabel("Haga click en \"CONSULTAR\" para ver los registros");
+		lblConsultar.setFont(new Font("Arial Black", Font.PLAIN, 18));
+		lblConsultar.setBounds(29, 46, 527, 37);
+		getContentPane().add(lblConsultar);
+	}
+
+	private void configurarTabla() {
+		tblModel = new DefaultTableModel() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				
+					return false;
+			
+			}
+		};
+		
+		tblModel.addColumn(CLM_NOMBRE);
+		tblModel.addColumn(CLM_APELLIDOS);
+		tblModel.addColumn(CLM_DNI);
+		
+		tblPersonas.setModel(tblModel);
+		
+		tblPersonas.getColumn(CLM_NOMBRE).setPreferredWidth(45);
+		tblPersonas.getColumn(CLM_APELLIDOS).setPreferredWidth(200);
+		tblPersonas.getColumn(CLM_DNI).setPreferredWidth(60);		
+	}
+	
+	public void cargarTabla(ArrayList<Persona> listaPersonas) {
+		
+		tblModel.setRowCount(0);
+		
+		Object[] fila = new Object[4];
+		
+		for (Persona persona : listaPersonas) {
+			fila[0] = persona.getNombre();
+			fila[1] = persona.getApellidos();
+			fila[2] = persona.getDni();
+			
+			tblModel.addRow(fila);
+		}
+		
+	}
+	
+	public String getPersonaSeleccionado() {
+		String dni = "";
+		
+		if (tblPersonas.getSelectedRow() == -1) {
+			mostrarMsjError("Debe seleccionar un registro");
+			
+		} else {
+			dni = (String) tblModel.getValueAt(tblPersonas.getSelectedRow(), 2);
+		}
+		
+		return dni;
+	}
+	
+
+	private void mostrarMsjError(String string) {
+		JOptionPane.showMessageDialog(this, string, "ERROR", JOptionPane.ERROR_MESSAGE);		
+	}
+
+	public void setListener(PersonaListener listener) {
+		btnConsulta.addActionListener(listener);
+		btnEliminar.addActionListener(listener);
+		btnAniadir.addActionListener(listener);
+		btnModificar.addActionListener(listener);
+	}
+	
+	
+	public void cargarPanel(JPanel panel) {
+		scrpContenedor.setViewportView(panel);
+	}
+
+	public void hacerVisible() {
+		setVisible(true);
+	}
+	
+	public boolean isFilaSelect() {
+		boolean filaSelect = false;
+		
+		if (tblPersonas.getSelectedRow() != -1) {
+			filaSelect = true;
+		}
+		
+		return filaSelect;
+	}
+}
